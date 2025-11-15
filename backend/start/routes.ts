@@ -32,6 +32,10 @@ router.group(() => {
   // Bookings - create booking (public)
   router.post('/bookings', '#controllers/bookings_controller.store')
 
+  // Courses - list courses (public)
+  router.get('/courses', '#controllers/courses_controller.index')
+  router.get('/courses/:id', '#controllers/courses_controller.show')
+
   /**
    * AUTHENTICATED ROUTES
    */

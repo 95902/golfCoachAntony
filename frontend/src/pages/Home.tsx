@@ -20,9 +20,11 @@ export function Home() {
                 Réserver Indoor
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="w-full sm:w-auto">
-              Parcours Accompagné
-            </Button>
+            <Link to="/booking/accompanied">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                Parcours Accompagné
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -86,9 +88,9 @@ export function Home() {
                   <span>Accompagnement professionnel</span>
                 </li>
               </ul>
-              <Button className="w-full" variant="outline">
-                Prochainement
-              </Button>
+              <Link to="/booking/accompanied" className="block">
+                <Button className="w-full">Réserver maintenant</Button>
+              </Link>
             </CardContent>
           </Card>
         </div>
