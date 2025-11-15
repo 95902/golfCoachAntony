@@ -1,0 +1,377 @@
+{
+  "name": "Golf Coach Booking System",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "golf-coach",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook - Booking Events",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "golf-coach-webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.event}}",
+              "operation": "equals",
+              "value2": "booking.created"
+            }
+          ]
+        }
+      },
+      "id": "if-created",
+      "name": "IF Created",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.event}}",
+              "operation": "equals",
+              "value2": "booking.updated"
+            }
+          ]
+        }
+      },
+      "id": "if-updated",
+      "name": "IF Updated",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.event}}",
+              "operation": "equals",
+              "value2": "booking.cancelled"
+            }
+          ]
+        }
+      },
+      "id": "if-cancelled",
+      "name": "IF Cancelled",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 600]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "customerName",
+              "value": "={{$json.customer.firstName}} {{$json.customer.lastName}}"
+            },
+            {
+              "name": "customerEmail",
+              "value": "={{$json.customer.email}}"
+            },
+            {
+              "name": "bookingType",
+              "value": "={{$json.booking.type}}"
+            },
+            {
+              "name": "bookingDate",
+              "value": "={{$json.booking.bookingDate}}"
+            },
+            {
+              "name": "startTime",
+              "value": "={{$json.booking.startTime}}"
+            },
+            {
+              "name": "endTime",
+              "value": "={{$json.booking.endTime}}"
+            },
+            {
+              "name": "totalPrice",
+              "value": "={{$json.booking.totalPrice}}"
+            },
+            {
+              "name": "bookingId",
+              "value": "={{$json.booking.id}}"
+            },
+            {
+              "name": "numberOfPlayers",
+              "value": "={{$json.booking.numberOfPlayers || 1}}"
+            },
+            {
+              "name": "courseName",
+              "value": "={{$json.booking.course?.name || 'N/A'}}"
+            },
+            {
+              "name": "courseLocation",
+              "value": "={{$json.booking.course?.location || 'N/A'}}"
+            },
+            {
+              "name": "specialRequests",
+              "value": "={{$json.booking.specialRequests || 'Aucune'}}"
+            }
+          ]
+        }
+      },
+      "id": "set-vars-created",
+      "name": "Set Variables",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [650, 100]
+    },
+    {
+      "parameters": {
+        "operation": "sendEmail",
+        "email": "={{$json.customerEmail}}",
+        "subject": "✅ Confirmation de réservation - Golf Coach Antony",
+        "emailType": "html",
+        "message": "<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <style>\n    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n    .container { max-width: 600px; margin: 0 auto; padding: 20px; }\n    .header { background: #16a34a; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }\n    .content { background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; }\n    .details { background: white; padding: 15px; margin: 15px 0; border-left: 4px solid #16a34a; border-radius: 4px; }\n    .footer { text-align: center; color: #6b7280; font-size: 12px; margin-top: 20px; padding: 15px; }\n    ul { padding-left: 20px; }\n    li { margin: 8px 0; }\n    .highlight { color: #16a34a; font-weight: bold; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h1>🏌️ Golf Coach Antony</h1>\n      <p style=\"margin: 0; font-size: 18px;\">Confirmation de réservation</p>\n    </div>\n\n    <div class=\"content\">\n      <p>Bonjour <strong>{{$json.customerName}}</strong>,</p>\n\n      <p>Votre réservation a bien été enregistrée ! 🎉</p>\n\n      <div class=\"details\">\n        <h3 style=\"margin-top: 0; color: #16a34a;\">📋 Détails de la réservation</h3>\n        <p><strong>Numéro :</strong> #{{$json.bookingId}}</p>\n        <p><strong>Type :</strong> \n          {{#if (eq $json.bookingType \"INDOOR\")}}\n            Séance Indoor (TrackMan 4)\n          {{else if (eq $json.bookingType \"ACCOMPANIED_9\")}}\n            Parcours Accompagné - 9 Trous (4h)\n          {{else if (eq $json.bookingType \"ACCOMPANIED_18\")}}\n            Parcours Accompagné - 18 Trous (Journée)\n          {{else}}\n            {{$json.bookingType}}\n          {{/if}}\n        </p>\n        <p><strong>📅 Date :</strong> {{$json.bookingDate}}</p>\n        <p><strong>🕐 Horaire :</strong> {{$json.startTime}} - {{$json.endTime}}</p>\n        \n        {{#if (or (eq $json.bookingType \"ACCOMPANIED_9\") (eq $json.bookingType \"ACCOMPANIED_18\"))}}\n          <p><strong>⛳ Parcours :</strong> {{$json.courseName}}</p>\n          <p><strong>📍 Lieu :</strong> {{$json.courseLocation}}</p>\n          <p><strong>👥 Joueurs :</strong> {{$json.numberOfPlayers}}</p>\n        {{/if}}\n        \n        <p><strong>💰 Prix total :</strong> <span class=\"highlight\">{{$json.totalPrice}}€</span></p>\n        \n        {{#if (ne $json.specialRequests \"Aucune\")}}\n          <p><strong>📝 Demandes spéciales :</strong> {{$json.specialRequests}}</p>\n        {{/if}}\n      </div>\n\n      <div style=\"background: #fef3c7; padding: 15px; border-radius: 4px; margin: 15px 0;\">\n        <p style=\"margin: 0;\"><strong>📧 Important :</strong></p>\n        <ul style=\"margin: 10px 0;\">\n          <li>Un rappel vous sera envoyé <strong>24h avant</strong> votre séance</li>\n          <li>Annulation gratuite jusqu'à <strong>48h avant</strong></li>\n          <li>Merci d'arriver <strong>10 minutes en avance</strong></li>\n        </ul>\n      </div>\n\n      <p>À très bientôt sur le green ! ⛳</p>\n\n      <p style=\"margin-top: 30px;\">\n        Sportivement,<br>\n        <strong>L'équipe Golf Coach Antony</strong>\n      </p>\n    </div>\n\n    <div class=\"footer\">\n      <p>© 2024 Golf Coach Antony - Tous droits réservés</p>\n      <p>Email : contact@golfcoachantony.com | Tél : 06 XX XX XX XX</p>\n    </div>\n  </div>\n</body>\n</html>",
+        "options": {}
+      },
+      "id": "gmail-customer-created",
+      "name": "Gmail - Email Client",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [850, 50],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1",
+          "name": "Gmail OAuth2 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": "primary",
+        "start": "={{$json.bookingDate}}T{{$json.startTime}}",
+        "end": "={{$json.bookingDate}}T{{$json.endTime}}",
+        "summary": "{{$json.bookingType}} - {{$json.customerName}}",
+        "description": "Réservation #{{$json.bookingId}}\\n\\nClient : {{$json.customerName}}\\nEmail : {{$json.customerEmail}}\\nTéléphone : {{$json.customer.phone}}\\n\\nType : {{$json.bookingType}}\\nPrix : {{$json.totalPrice}}€\\n\\n{{#if $json.specialRequests}}Demandes spéciales :\\n{{$json.specialRequests}}{{/if}}",
+        "location": "{{#if (eq $json.bookingType \"INDOOR\")}}Golf Coach Antony - Indoor{{else}}{{$json.courseLocation}}{{/if}}",
+        "options": {
+          "sendUpdates": "all"
+        }
+      },
+      "id": "gcal-create",
+      "name": "Google Calendar - Create",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [850, 150],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "2",
+          "name": "Google Calendar OAuth2 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendEmail",
+        "email": "coach@golfcoachantony.com",
+        "subject": "🔔 Nouvelle réservation #{{$json.bookingId}}",
+        "emailType": "html",
+        "message": "<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <style>\n    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n    .container { max-width: 600px; margin: 0 auto; padding: 20px; }\n    .header { background: #3b82f6; color: white; padding: 20px; text-align: center; }\n    .content { background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; }\n    .details { background: white; padding: 15px; margin: 15px 0; border-left: 4px solid #3b82f6; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h1>🔔 Nouvelle réservation</h1>\n    </div>\n    <div class=\"content\">\n      <p><strong>Réservation #{{$json.bookingId}}</strong></p>\n      <div class=\"details\">\n        <p><strong>Client :</strong> {{$json.customerName}}</p>\n        <p><strong>Email :</strong> {{$json.customerEmail}}</p>\n        <p><strong>Téléphone :</strong> {{$json.customer.phone}}</p>\n        <p><strong>Type :</strong> {{$json.bookingType}}</p>\n        <p><strong>Date :</strong> {{$json.bookingDate}}</p>\n        <p><strong>Horaire :</strong> {{$json.startTime}} - {{$json.endTime}}</p>\n        <p><strong>Prix :</strong> {{$json.totalPrice}}€</p>\n        {{#if (ne $json.specialRequests \"Aucune\")}}\n          <p><strong>Demandes :</strong> {{$json.specialRequests}}</p>\n        {{/if}}\n      </div>\n      <p>L'événement a été ajouté à votre calendrier.</p>\n    </div>\n  </div>\n</body>\n</html>",
+        "options": {}
+      },
+      "id": "gmail-coach-created",
+      "name": "Gmail - Notification Coach",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [850, 250],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1",
+          "name": "Gmail OAuth2 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true, \"message\": \"Webhook received\"}",
+        "options": {}
+      },
+      "id": "respond-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "customerName",
+              "value": "={{$json.customer.firstName}} {{$json.customer.lastName}}"
+            },
+            {
+              "name": "customerEmail",
+              "value": "={{$json.customer.email}}"
+            },
+            {
+              "name": "bookingId",
+              "value": "={{$json.booking.id}}"
+            },
+            {
+              "name": "cancellationReason",
+              "value": "={{$json.booking.cancellationReason || 'Non spécifiée'}}"
+            },
+            {
+              "name": "bookingDate",
+              "value": "={{$json.booking.bookingDate}}"
+            },
+            {
+              "name": "startTime",
+              "value": "={{$json.booking.startTime}}"
+            }
+          ]
+        }
+      },
+      "id": "set-vars-cancelled",
+      "name": "Set Variables Cancelled",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [650, 600]
+    },
+    {
+      "parameters": {
+        "operation": "sendEmail",
+        "email": "={{$json.customerEmail}}",
+        "subject": "❌ Annulation de réservation - Golf Coach Antony",
+        "emailType": "html",
+        "message": "<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <style>\n    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n    .container { max-width: 600px; margin: 0 auto; padding: 20px; }\n    .header { background: #dc2626; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }\n    .content { background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; }\n    .details { background: white; padding: 15px; margin: 15px 0; border-left: 4px solid #dc2626; border-radius: 4px; }\n    .button { display: inline-block; background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 15px 0; }\n    .footer { text-align: center; color: #6b7280; font-size: 12px; margin-top: 20px; padding: 15px; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h1>❌ Annulation de réservation</h1>\n    </div>\n\n    <div class=\"content\">\n      <p>Bonjour <strong>{{$json.customerName}}</strong>,</p>\n\n      <p>Votre réservation <strong>#{{$json.bookingId}}</strong> a bien été annulée.</p>\n\n      <div class=\"details\">\n        <h3 style=\"margin-top: 0; color: #dc2626;\">Réservation annulée</h3>\n        <p><strong>Date :</strong> {{$json.bookingDate}}</p>\n        <p><strong>Horaire :</strong> {{$json.startTime}}</p>\n      </div>\n\n      <p>Nous espérons vous revoir bientôt !</p>\n      \n      <p style=\"text-align: center; margin: 30px 0;\">\n        <a href=\"https://golfcoachantony.com/booking/indoor\" class=\"button\">Nouvelle réservation</a>\n      </p>\n\n      <p>\n        Sportivement,<br>\n        <strong>L'équipe Golf Coach Antony</strong>\n      </p>\n    </div>\n\n    <div class=\"footer\">\n      <p>© 2024 Golf Coach Antony - Tous droits réservés</p>\n    </div>\n  </div>\n</body>\n</html>",
+        "options": {}
+      },
+      "id": "gmail-cancelled",
+      "name": "Gmail - Email Cancellation",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [850, 600],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1",
+          "name": "Gmail OAuth2 account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook - Booking Events": {
+      "main": [
+        [
+          {
+            "node": "IF Created",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF Updated",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF Cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Created": {
+      "main": [
+        [
+          {
+            "node": "Set Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Variables": {
+      "main": [
+        [
+          {
+            "node": "Gmail - Email Client",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Calendar - Create",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Gmail - Notification Coach",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail - Email Client": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Cancelled": {
+      "main": [
+        [
+          {
+            "node": "Set Variables Cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Variables Cancelled": {
+      "main": [
+        [
+          {
+            "node": "Gmail - Email Cancellation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail - Email Cancellation": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1",
+  "id": "golf-coach-booking-system",
+  "meta": {
+    "instanceId": "golf-coach-instance"
+  },
+  "tags": []
+}

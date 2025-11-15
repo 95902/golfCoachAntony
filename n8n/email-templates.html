@@ -1,0 +1,549 @@
+<!--
+  EMAIL TEMPLATES - Golf Coach Booking System
+
+  Ces templates peuvent être copiés dans les nodes Gmail de N8N.
+  Utilisez les variables N8N avec la syntaxe {{$json.variableName}}
+-->
+
+<!-- ==================== TEMPLATE 1: EMAIL DE CONFIRMATION ==================== -->
+<!-- À utiliser pour : booking.created -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmation de réservation</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      background-color: #f3f4f6;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+    .header p {
+      margin: 10px 0 0 0;
+      font-size: 16px;
+      opacity: 0.9;
+    }
+    .content {
+      padding: 30px;
+    }
+    .details {
+      background: #f9fafb;
+      padding: 20px;
+      margin: 20px 0;
+      border-left: 4px solid #16a34a;
+      border-radius: 4px;
+    }
+    .details h3 {
+      margin-top: 0;
+      color: #16a34a;
+      font-size: 18px;
+    }
+    .details p {
+      margin: 10px 0;
+    }
+    .info-box {
+      background: #fef3c7;
+      border: 1px solid #fde68a;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 20px 0;
+    }
+    .info-box p {
+      margin: 0 0 10px 0;
+    }
+    .info-box ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .info-box li {
+      margin: 8px 0;
+    }
+    .highlight {
+      color: #16a34a;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .footer {
+      background: #f9fafb;
+      text-align: center;
+      color: #6b7280;
+      font-size: 12px;
+      padding: 20px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .footer p {
+      margin: 5px 0;
+    }
+    @media only screen and (max-width: 600px) {
+      .container {
+        margin: 0;
+        border-radius: 0;
+      }
+      .content {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🏌️ Golf Coach Antony</h1>
+      <p>Confirmation de réservation</p>
+    </div>
+
+    <div class="content">
+      <p>Bonjour <strong>{{$json.customerName}}</strong>,</p>
+
+      <p>Votre réservation a bien été enregistrée ! 🎉</p>
+
+      <div class="details">
+        <h3>📋 Détails de la réservation</h3>
+        <p><strong>Numéro de réservation :</strong> #{{$json.bookingId}}</p>
+
+        <p><strong>Type de séance :</strong><br>
+          {{#if (eq $json.bookingType "INDOOR")}}
+            🎯 Séance Indoor sur simulateur TrackMan 4
+          {{else if (eq $json.bookingType "ACCOMPANIED_9")}}
+            ⛳ Parcours Accompagné - 9 Trous (4 heures)
+          {{else if (eq $json.bookingType "ACCOMPANIED_18")}}
+            ⛳ Parcours Accompagné - 18 Trous (Journée complète)
+          {{else}}
+            {{$json.bookingType}}
+          {{/if}}
+        </p>
+
+        <p><strong>📅 Date :</strong> {{$json.bookingDate}}</p>
+        <p><strong>🕐 Horaire :</strong> {{$json.startTime}} - {{$json.endTime}}</p>
+
+        {{#if (or (eq $json.bookingType "ACCOMPANIED_9") (eq $json.bookingType "ACCOMPANIED_18"))}}
+          <p><strong>⛳ Parcours de golf :</strong> {{$json.courseName}}</p>
+          <p><strong>📍 Lieu :</strong> {{$json.courseLocation}}</p>
+          <p><strong>👥 Nombre de joueurs :</strong> {{$json.numberOfPlayers}}</p>
+        {{/if}}
+
+        <p><strong>💰 Prix total :</strong> <span class="highlight">{{$json.totalPrice}}€</span></p>
+
+        {{#if (ne $json.specialRequests "Aucune")}}
+          <p><strong>📝 Vos demandes spéciales :</strong><br>
+          {{$json.specialRequests}}</p>
+        {{/if}}
+      </div>
+
+      <div class="info-box">
+        <p><strong>📧 Informations importantes :</strong></p>
+        <ul>
+          <li>Un rappel vous sera envoyé par email <strong>24 heures avant</strong> votre séance</li>
+          <li>Annulation gratuite jusqu'à <strong>48 heures avant</strong> la date prévue</li>
+          <li>Merci d'arriver <strong>10 minutes en avance</strong> pour la préparation</li>
+          {{#if (eq $json.bookingType "INDOOR")}}
+            <li>N'oubliez pas vos chaussures de golf (ou chaussures de sport propres)</li>
+          {{else}}
+            <li>Prévoyez votre équipement de golf complet</li>
+            <li>Pensez à la météo et adaptez votre tenue</li>
+          {{/if}}
+        </ul>
+      </div>
+
+      <p style="margin-top: 30px;">À très bientôt sur le green ! ⛳</p>
+
+      <p style="margin-top: 30px;">
+        Sportivement,<br>
+        <strong>L'équipe Golf Coach Antony</strong>
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>© 2024 Golf Coach Antony - Tous droits réservés</p>
+      <p>📧 contact@golfcoachantony.com | 📱 06 XX XX XX XX</p>
+      <p>📍 Adresse du centre - 91160 Longjumeau</p>
+    </div>
+  </div>
+</body>
+</html>
+
+
+<!-- ==================== TEMPLATE 2: EMAIL DE RAPPEL (24H AVANT) ==================== -->
+<!-- À utiliser pour : Schedule trigger (cron job) -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rappel - Votre séance demain</title>
+  <style>
+    /* Mêmes styles que ci-dessus */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      background-color: #f3f4f6;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+    .content {
+      padding: 30px;
+    }
+    .details {
+      background: #fef3c7;
+      padding: 20px;
+      margin: 20px 0;
+      border-left: 4px solid #f59e0b;
+      border-radius: 4px;
+    }
+    .tips-box {
+      background: #dbeafe;
+      border: 1px solid #93c5fd;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 20px 0;
+    }
+    .tips-box ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .tips-box li {
+      margin: 8px 0;
+    }
+    .footer {
+      background: #f9fafb;
+      text-align: center;
+      color: #6b7280;
+      font-size: 12px;
+      padding: 20px;
+      border-top: 1px solid #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔔 Rappel</h1>
+      <p>Votre séance de golf, c'est demain !</p>
+    </div>
+
+    <div class="content">
+      <p>Bonjour <strong>{{$json.customerName}}</strong>,</p>
+
+      <p>Nous avons hâte de vous voir <strong>demain</strong> pour votre séance de golf ! 🏌️</p>
+
+      <div class="details">
+        <h3>⏰ Rappel de votre réservation</h3>
+        <p><strong>📅 Date :</strong> Demain, {{$json.bookingDate}}</p>
+        <p><strong>🕐 Horaire :</strong> {{$json.startTime}}</p>
+        <p><strong>⏱️ Durée :</strong> {{$json.durationMinutes}} minutes</p>
+        <p><strong>📍 Lieu :</strong>
+          {{#if (eq $json.bookingType "INDOOR")}}
+            Golf Coach Antony - Simulateur Indoor
+          {{else}}
+            {{$json.courseLocation}}
+          {{/if}}
+        </p>
+      </div>
+
+      <div class="tips-box">
+        <p><strong>💡 Conseils pour demain :</strong></p>
+        <ul>
+          <li>✅ Arrivez 10 minutes en avance</li>
+          <li>✅ Prévoyez une tenue confortable et adaptée</li>
+          {{#if (eq $json.bookingType "INDOOR")}}
+            <li>✅ Apportez vos chaussures de golf (ou chaussures de sport propres)</li>
+            <li>✅ Pensez à vous hydrater avant la séance</li>
+          {{else}}
+            <li>✅ Vérifiez la météo et adaptez votre équipement</li>
+            <li>✅ N'oubliez pas votre matériel de golf</li>
+            <li>✅ Prévoyez de l'eau et une collation</li>
+          {{/if}}
+        </ul>
+      </div>
+
+      <p><strong>🚫 Besoin d'annuler ?</strong><br>
+      Contactez-nous au plus vite au 06 XX XX XX XX</p>
+
+      <p style="margin-top: 30px;">À très bientôt ! ⛳</p>
+
+      <p style="margin-top: 30px;">
+        Sportivement,<br>
+        <strong>L'équipe Golf Coach Antony</strong>
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>© 2024 Golf Coach Antony</p>
+      <p>📧 contact@golfcoachantony.com | 📱 06 XX XX XX XX</p>
+    </div>
+  </div>
+</body>
+</html>
+
+
+<!-- ==================== TEMPLATE 3: EMAIL D'ANNULATION ==================== -->
+<!-- À utiliser pour : booking.cancelled -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Annulation de réservation</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      background-color: #f3f4f6;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+    .content {
+      padding: 30px;
+    }
+    .details {
+      background: #fee2e2;
+      padding: 20px;
+      margin: 20px 0;
+      border-left: 4px solid #dc2626;
+      border-radius: 4px;
+    }
+    .cta-button {
+      display: inline-block;
+      background: #16a34a;
+      color: white !important;
+      padding: 14px 28px;
+      text-decoration: none;
+      border-radius: 6px;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+    .cta-button:hover {
+      background: #15803d;
+    }
+    .footer {
+      background: #f9fafb;
+      text-align: center;
+      color: #6b7280;
+      font-size: 12px;
+      padding: 20px;
+      border-top: 1px solid #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>❌ Annulation de réservation</h1>
+    </div>
+
+    <div class="content">
+      <p>Bonjour <strong>{{$json.customerName}}</strong>,</p>
+
+      <p>Votre réservation <strong>#{{$json.bookingId}}</strong> a bien été annulée.</p>
+
+      <div class="details">
+        <h3>Détails de la réservation annulée</h3>
+        <p><strong>Date :</strong> {{$json.bookingDate}}</p>
+        <p><strong>Horaire :</strong> {{$json.startTime}}</p>
+        <p><strong>Type :</strong> {{$json.bookingType}}</p>
+      </div>
+
+      <p>Nous sommes désolés de ne pas vous voir cette fois-ci, mais nous espérons avoir le plaisir de vous accueillir très bientôt !</p>
+
+      <p style="text-align: center;">
+        <a href="https://golfcoachantony.com/booking/indoor" class="cta-button">
+          📅 Nouvelle réservation
+        </a>
+      </p>
+
+      <p style="margin-top: 30px;">
+        Sportivement,<br>
+        <strong>L'équipe Golf Coach Antony</strong>
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>© 2024 Golf Coach Antony - Tous droits réservés</p>
+      <p>📧 contact@golfcoachantony.com | 📱 06 XX XX XX XX</p>
+    </div>
+  </div>
+</body>
+</html>
+
+
+<!-- ==================== TEMPLATE 4: NOTIFICATION COACH ==================== -->
+<!-- À utiliser pour : Nouvelle réservation (envoyé au coach) -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nouvelle réservation</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      background-color: #f3f4f6;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    .content {
+      padding: 30px;
+    }
+    .details {
+      background: #f0f9ff;
+      padding: 20px;
+      margin: 20px 0;
+      border-left: 4px solid #3b82f6;
+      border-radius: 4px;
+    }
+    .details p {
+      margin: 8px 0;
+    }
+    .status-badge {
+      display: inline-block;
+      background: #16a34a;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .footer {
+      background: #f9fafb;
+      text-align: center;
+      color: #6b7280;
+      font-size: 12px;
+      padding: 20px;
+      border-top: 1px solid #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔔 Nouvelle réservation</h1>
+      <p>Réservation #{{$json.bookingId}}</p>
+    </div>
+
+    <div class="content">
+      <p><span class="status-badge">NOUVELLE RÉSERVATION</span></p>
+
+      <div class="details">
+        <h3 style="margin-top: 0; color: #3b82f6;">👤 Informations client</h3>
+        <p><strong>Nom :</strong> {{$json.customerName}}</p>
+        <p><strong>Email :</strong> {{$json.customerEmail}}</p>
+        <p><strong>Téléphone :</strong> {{$json.customer.phone}}</p>
+      </div>
+
+      <div class="details">
+        <h3 style="margin-top: 0; color: #3b82f6;">📅 Détails de la réservation</h3>
+        <p><strong>Type :</strong> {{$json.bookingType}}</p>
+        <p><strong>Date :</strong> {{$json.bookingDate}}</p>
+        <p><strong>Horaire :</strong> {{$json.startTime}} - {{$json.endTime}}</p>
+
+        {{#if (or (eq $json.bookingType "ACCOMPANIED_9") (eq $json.bookingType "ACCOMPANIED_18"))}}
+          <p><strong>Parcours :</strong> {{$json.courseName}} ({{$json.courseLocation}})</p>
+          <p><strong>Joueurs :</strong> {{$json.numberOfPlayers}}</p>
+        {{/if}}
+
+        <p><strong>Prix :</strong> {{$json.totalPrice}}€</p>
+
+        {{#if (ne $json.specialRequests "Aucune")}}
+          <p><strong>Demandes spéciales :</strong><br>
+          {{$json.specialRequests}}</p>
+        {{/if}}
+      </div>
+
+      <p><strong>✅ Actions effectuées :</strong></p>
+      <ul>
+        <li>Email de confirmation envoyé au client</li>
+        <li>Événement ajouté à votre calendrier Google</li>
+        <li>Rappel programmé pour 24h avant</li>
+      </ul>
+
+      <p style="margin-top: 30px; color: #6b7280; font-size: 14px;">
+        Cet email est généré automatiquement par le système N8N.
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>Golf Coach Booking System - Powered by N8N</p>
+    </div>
+  </div>
+</body>
+</html>
