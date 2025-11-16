@@ -1,289 +1,528 @@
-# 🏌️ Golf Coach Booking System
+# 🏌️ Golf Coach Antony - Système de Réservation
 
-Système de réservation en ligne pour coach de golf professionnel.
+## 📋 Description
 
-## 📋 Stack Technique
+Système de réservation complet pour Golf Coach Antony permettant de gérer les réservations de séances Indoor (simulateur TrackMan 4) et de parcours accompagnés (9/18 trous).
 
-### Backend
-- **Framework**: AdonisJS 6 (TypeScript)
-- **Database**: PostgreSQL 14+
-- **ORM**: Lucid (intégré AdonisJS)
-- **Authentication**: Sessions (httpOnly cookies)
-- **Validation**: Vine
-- **Port**: 3333
+**Stack technique :**
+- **Backend** : AdonisJS 6 + PostgreSQL 14
+- **Frontend** : React 19 + Vite + TypeScript + Shadcn UI
+- **Automation** : N8N (emails + Google Calendar)
+- **État** : Zustand
+- **Validation** : VineJS (backend) + Zod (frontend)
 
-### Frontend
-- **Framework**: React 19 + TypeScript
-- **Build Tool**: Vite
-- **Routing**: React Router v6
-- **UI Library**: Shadcn UI + Tailwind CSS
-- **State Management**: Zustand
-- **Forms**: React Hook Form + Zod
-- **HTTP Client**: Axios
-- **Port**: 5173
+---
 
-## 🚀 Démarrage Rapide
+## 🚀 Fonctionnalités
+
+### ✅ Réservations Indoor
+- Simulateur TrackMan 4
+- Créneaux d'1 heure à 70€
+- 1 à 3 créneaux consécutifs maximum
+- Validation de créneaux consécutifs
+- Confirmation immédiate par email
+
+### ✅ Réservations Parcours Accompagné
+- **9 Trous** : 180€ / 4 heures
+- **18 Trous** : 300€ / journée complète
+- 1 à 3 joueurs (prix divisé entre joueurs)
+- Sélection du parcours de golf
+- Date précise OU demande de rappel
+
+### ✅ Gestion des horaires
+- Système de planning cyclique (Semaine 1 / Semaine 2)
+- Génération automatique des créneaux
+- Disponibilité en temps réel
+- Blocage automatique des créneaux réservés
+
+### ✅ Automatisation N8N
+- Emails de confirmation automatiques
+- Rappels 24h avant la séance
+- Synchronisation Google Calendar
+- Notifications au coach
+- Emails d'annulation
+
+### ✅ Authentification & Autorisations
+- Session-based auth avec cookies httpOnly
+- Rôles : CLIENT, USER, COACH, ADMIN
+- Gestion des permissions par rôle
+- Réservations publiques (sans compte)
+
+### ✅ Audit & Sécurité
+- Logs d'audit pour toutes les actions
+- Transactions de base de données
+- Validation stricte des données (backend + frontend)
+- CORS configuré
+- Protection CSRF
+
+---
+
+## 📁 Structure du projet
+
+```
+golfCoachAntony/
+├── backend/              # Backend AdonisJS 6
+│   ├── app/
+│   │   ├── controllers/  # Contrôleurs API (6 fichiers)
+│   │   ├── models/       # Modèles Lucid ORM (8 fichiers)
+│   │   ├── services/     # Services métier (3 fichiers)
+│   │   └── validators/   # Validateurs VineJS (4 fichiers)
+│   ├── database/
+│   │   ├── migrations/   # 8 migrations
+│   │   └── seeders/      # 3 seeders
+│   ├── config/           # Configuration app
+│   └── start/            # Routes & bootstrap
+│
+├── frontend/             # Frontend React 19
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── ui/       # Shadcn UI (7 composants)
+│   │   │   └── booking/  # Composants booking (10 fichiers)
+│   │   ├── pages/        # Pages (3 fichiers)
+│   │   ├── services/     # API clients (3 fichiers)
+│   │   ├── stores/       # Zustand stores (2 fichiers)
+│   │   └── types/        # TypeScript types
+│   └── public/
+│
+├── n8n/                  # Workflows N8N
+│   ├── golf-coach-workflow.json
+│   ├── email-templates.html
+│   └── README.md
+│
+└── docs/                 # Documentation
+    └── N8N_SETUP.md
+```
+
+---
+
+## 🛠️ Installation
 
 ### Prérequis
 
 - Node.js 20+
 - PostgreSQL 14+
 - npm ou yarn
+- (Optionnel) N8N pour l'automatisation
 
-### 1. Installation
-
-```bash
-# Cloner le repository
-git clone <repo-url>
-cd golfCoachAntony
-
-# Installer les dépendances Backend
-cd backend
-npm install
-
-# Installer les dépendances Frontend
-cd ../frontend
-npm install
-```
-
-### 2. Configuration Backend
+### Backend
 
 ```bash
+# 1. Aller dans le dossier backend
 cd backend
 
-# Le fichier .env est déjà créé
-# Modifier les variables si nécessaire
-nano .env
-```
+# 2. Installer les dépendances
+npm install
 
-**Variables d'environnement importantes** :
-```env
-# Database
+# 3. Copier le fichier .env
+cp .env.example .env
+
+# 4. Générer une clé d'application
+node ace generate:key
+
+# 5. Configurer la base de données dans .env
 DB_HOST=localhost
 DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=postgres
 DB_DATABASE=golf_coach
 
-# CORS (Frontend URL)
-CORS_ORIGIN=http://localhost:5173
-```
-
-### 3. Configuration Base de Données
-
-```bash
-# Créer la base de données PostgreSQL
+# 6. Créer la base de données
 createdb golf_coach
 
-# OU via psql
-psql -U postgres
-CREATE DATABASE golf_coach;
-\q
+# 7. Exécuter les migrations
+node ace migration:run
 
-# Lancer les migrations
-cd backend
-npm run migration:run
-```
+# 8. (Optionnel) Lancer les seeders
+node ace db:seed
 
-### 4. Démarrage des Serveurs
-
-**Terminal 1 - Backend** :
-```bash
-cd backend
+# 9. Démarrer le serveur
 npm run dev
 ```
-Le backend sera accessible sur http://localhost:3333
 
-**Terminal 2 - Frontend** :
-```bash
-cd frontend
-npm run dev
-```
-Le frontend sera accessible sur http://localhost:5173
-
-### 5. Vérification
-
-Ouvrez http://localhost:5173 dans votre navigateur.
-
-Vous devriez voir une page de test avec un health check qui confirme :
-- ✅ Frontend opérationnel
-- ✅ Backend opérationnel
-- ✅ Communication Frontend ↔ Backend fonctionnelle
-
-## 📊 Structure de la Base de Données
-
-### Tables Principales
-
-- **users** : Comptes utilisateurs (CLIENT, USER, COACH, ADMIN)
-- **customers** : Clients (infos de réservation)
-- **courses** : Parcours de golf
-- **bookings** : Réservations (INDOOR, ACCOMPANIED_9, ACCOMPANIED_18)
-- **time_slots** : Créneaux d'1h disponibles
-- **weekly_schedules** : Plannings hebdomadaires cycliques (Semaine 1 / Semaine 2)
-- **schedule_slots** : Plages horaires par planning
-- **audit_logs** : Logs d'audit
-
-## 🎯 Fonctionnalités Principales (MVP)
-
-### Phase 1 - En cours
-- [x] Setup complet Backend + Frontend
-- [x] Configuration base de données
-- [x] Migrations et Models
-- [x] Health check endpoint
-- [ ] Réservations Indoor (1-3 créneaux × 70€)
-- [ ] Dashboard Coach basique
-- [ ] Gestion plannings hebdomadaires cycliques
-- [ ] Génération automatique créneaux
-
-### Phase 2 - À venir
-- [ ] Réservations Parcours (9 et 18 trous)
-- [ ] Email confirmation automatique
-- [ ] Synchronisation Google Calendar
-
-### Phase 3 - À venir
-- [ ] Dashboard avancé avec statistiques
-- [ ] Exports Excel/PDF
-- [ ] Optimisations performances
-
-## 🔧 Scripts Utiles
-
-### Backend
-
-```bash
-# Développement
-npm run dev
-
-# Build production
-npm run build
-npm run start
-
-# Migrations
-npm run migration:run
-npm run migration:rollback
-
-# Seeders
-npm run db:seed
-
-# CLI AdonisJS
-npm run ace <command>
-```
+Le backend sera disponible sur http://localhost:3333
 
 ### Frontend
 
 ```bash
-# Développement
-npm run dev
+# 1. Aller dans le dossier frontend
+cd frontend
 
-# Build production
+# 2. Installer les dépendances
+npm install
+
+# 3. Démarrer le serveur de dev
+npm run dev
+```
+
+Le frontend sera disponible sur http://localhost:5173
+
+### N8N (Optionnel)
+
+Voir le guide complet : [docs/N8N_SETUP.md](docs/N8N_SETUP.md)
+
+**Résumé rapide :**
+1. Créer un compte sur https://n8n.io
+2. Importer le workflow `n8n/golf-coach-workflow.json`
+3. Configurer les credentials Gmail et Google Calendar
+4. Copier l'URL du webhook dans `.env` : `N8N_WEBHOOK_URL=...`
+5. Activer le workflow
+
+---
+
+## 🗄️ Base de données
+
+### Schéma
+
+**8 tables principales :**
+- `users` : Utilisateurs avec authentification
+- `customers` : Clients (liés ou non à un user)
+- `courses` : Parcours de golf disponibles
+- `weekly_schedules` : Planning cyclique (Semaine 1/2)
+- `schedule_slots` : Plages horaires par jour
+- `time_slots` : Créneaux d'1h générés automatiquement
+- `bookings` : Réservations
+- `audit_logs` : Logs d'audit
+
+### Seeders disponibles
+
+```bash
+# Users (admin, coach, user test)
+node ace db:seed --files database/seeders/user_seeder.ts
+
+# Parcours de golf (5 parcours)
+node ace db:seed --files database/seeders/course_seeder.ts
+
+# Planning semaines 1 et 2
+node ace db:seed --files database/seeders/weekly_schedule_seeder.ts
+```
+
+---
+
+## 🔌 API Endpoints
+
+### Authentification
+```
+POST   /api/auth/login        # Connexion
+POST   /api/auth/register     # Inscription
+POST   /api/auth/logout       # Déconnexion
+GET    /api/auth/me           # Utilisateur actuel
+```
+
+### Réservations
+```
+GET    /api/bookings          # Liste (auth)
+GET    /api/bookings/:id      # Détail (auth)
+POST   /api/bookings          # Créer (public)
+PUT    /api/bookings/:id      # Modifier (auth)
+DELETE /api/bookings/:id      # Annuler (auth)
+```
+
+### Créneaux horaires
+```
+GET    /api/time-slots/available              # Créneaux dispo pour une date
+GET    /api/time-slots/available-range        # Créneaux sur période
+```
+
+### Parcours
+```
+GET    /api/courses           # Liste des parcours
+GET    /api/courses/:id       # Détail parcours
+```
+
+### Clients (Auth requise)
+```
+GET    /api/customers         # Liste
+GET    /api/customers/:id     # Détail
+POST   /api/customers         # Créer
+PUT    /api/customers/:id     # Modifier
+DELETE /api/customers/:id     # Supprimer
+```
+
+### Admin (Auth ADMIN requise)
+```
+GET    /api/admin/schedules              # Planning
+POST   /api/admin/schedules/:id/slots    # Ajouter créneau
+DELETE /api/admin/schedules/:id/slots    # Supprimer créneau
+POST   /api/admin/schedules/regenerate   # Regénérer créneaux
+```
+
+---
+
+## 🎨 Frontend - Pages & Composants
+
+### Pages
+- **Home** (`/`) : Page d'accueil avec présentation des services
+- **BookingIndoor** (`/booking/indoor`) : Réservation Indoor (4 étapes)
+- **BookingAccompanied** (`/booking/accompanied`) : Réservation Parcours (4 étapes)
+
+### Composants UI (Shadcn)
+- Button, Card, Input, Label, Badge, Alert, Select
+
+### Composants Booking
+**Indoor :**
+- CalendarPicker : Sélection de date
+- TimeSlotPicker : Sélection de créneaux (1-3 consécutifs)
+- BookingForm : Formulaire client
+- BookingSummary : Récapitulatif
+
+**Parcours Accompagné :**
+- BookingTypeSelector : Choix 9 ou 18 trous
+- CourseSelector : Sélection du parcours
+- PlayerSelector : Nombre de joueurs (1-3)
+- PriceDisplay : Affichage dynamique des prix
+- AccompaniedBookingForm : Formulaire + date/callback
+- AccompaniedSummary : Récapitulatif
+
+---
+
+## 📧 Emails automatiques (N8N)
+
+### Templates disponibles
+1. **Confirmation de réservation** : Envoyé immédiatement après création
+2. **Rappel 24h** : Envoyé automatiquement 24h avant la séance
+3. **Annulation** : Envoyé lors de l'annulation
+4. **Notification coach** : Envoyé au coach pour chaque réservation
+
+Tous les templates sont **responsive** et **professionnels**.
+
+---
+
+## 🧪 Tests
+
+### Test manuel du backend
+
+```bash
+# Vérifier la santé de l'API
+curl http://localhost:3333/health
+
+# Créer une réservation Indoor
+curl -X POST http://localhost:3333/api/bookings \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "INDOOR",
+    "firstName": "Jean",
+    "lastName": "Dupont",
+    "email": "jean@example.com",
+    "phone": "0612345678",
+    "date": "2024-12-01",
+    "timeSlotIds": [1, 2]
+  }'
+```
+
+### Test du webhook N8N
+
+```bash
+# Tester le webhook (remplacer l'URL)
+curl -X POST https://app.n8n.cloud/webhook/xxxxx \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event": "booking.created",
+    "booking": {...},
+    "customer": {...}
+  }'
+```
+
+---
+
+## 🔐 Sécurité
+
+### Implémenté
+- ✅ Validation stricte des données (backend + frontend)
+- ✅ Sessions avec cookies httpOnly
+- ✅ CORS configuré
+- ✅ Hashing des mots de passe (bcrypt)
+- ✅ Transactions de base de données
+- ✅ Logs d'audit
+- ✅ Autorisations par rôle
+
+### À configurer en production
+- [ ] HTTPS obligatoire
+- [ ] Rate limiting
+- [ ] Variables d'environnement sécurisées
+- [ ] Backup automatique de la base de données
+- [ ] Monitoring et alertes
+
+---
+
+## 📖 Documentation
+
+- [Guide N8N complet](docs/N8N_SETUP.md) : Configuration N8N
+- [README Backend](backend/README.md) : Documentation backend
+- [README N8N](n8n/README.md) : Import workflow
+
+---
+
+## 🚢 Déploiement
+
+### Backend (Production)
+
+```bash
+# Build
 npm run build
 
-# Preview production
-npm run preview
+# Migrations en production
+NODE_ENV=production node ace migration:run --force
+
+# Démarrer
+NODE_ENV=production node build/bin/server.js
 ```
 
-## 📁 Structure du Projet
+### Frontend (Production)
 
-```
-golfCoachAntony/
-├── backend/                    # Backend AdonisJS
-│   ├── app/
-│   │   ├── controllers/        # Contrôleurs HTTP
-│   │   ├── models/            # Models Lucid
-│   │   ├── services/          # Logique métier
-│   │   ├── validators/        # Validation Vine
-│   │   └── middleware/        # Middleware custom
-│   ├── config/                # Configuration
-│   ├── database/
-│   │   ├── migrations/        # Migrations DB
-│   │   └── seeders/           # Seeders
-│   ├── start/                 # Bootstrap
-│   │   ├── routes.ts          # Routes API
-│   │   └── env.ts             # Variables d'env
-│   └── .env                   # Variables d'environnement
-│
-└── frontend/                   # Frontend React
-    ├── src/
-    │   ├── components/        # Composants React
-    │   │   ├── ui/           # Composants UI (Shadcn)
-    │   │   ├── layout/       # Layout components
-    │   │   ├── booking/      # Composants réservation
-    │   │   └── dashboard/    # Composants dashboard
-    │   ├── pages/            # Pages
-    │   ├── services/         # API client
-    │   ├── stores/           # Zustand stores
-    │   ├── hooks/            # Custom hooks
-    │   ├── lib/              # Utilitaires
-    │   └── types/            # Types TypeScript
-    └── .env                  # Variables d'environnement
-```
-
-## 🐛 Debugging
-
-### Backend ne démarre pas
 ```bash
-# Vérifier PostgreSQL
-psql -U postgres -l
+# Build
+npm run build
 
-# Vérifier les logs
-cd backend
-npm run dev
+# Les fichiers sont dans dist/
+# Déployer sur Vercel, Netlify, ou serveur statique
 ```
 
-### Frontend ne peut pas se connecter au backend
-1. Vérifier que le backend tourne sur http://localhost:3333
-2. Vérifier CORS dans `backend/.env` :
-   ```
-   CORS_ORIGIN=http://localhost:5173
-   ```
-3. Vérifier l'URL de l'API dans `frontend/.env` :
-   ```
-   VITE_API_URL=http://localhost:3333
-   ```
+### Variables d'environnement
 
-### Erreurs de migrations
-```bash
-# Rollback et relancer
-cd backend
-npm run migration:rollback
-npm run migration:run
+**Backend (.env) :**
+```env
+NODE_ENV=production
+PORT=3333
+APP_KEY=<générer avec node ace generate:key>
+
+DB_HOST=<db host>
+DB_PORT=5432
+DB_USER=<db user>
+DB_PASSWORD=<db password>
+DB_DATABASE=golf_coach
+
+CORS_ORIGIN=https://votre-domaine.com
+N8N_WEBHOOK_URL=<webhook N8N>
 ```
 
-## 📝 Prochaines Étapes
+**Frontend (.env) :**
+```env
+VITE_API_URL=https://api.votre-domaine.com
+```
 
-1. **Créer les Controllers** :
-   - BookingsController
-   - CustomersController
-   - TimeSlotsController
-   - SchedulesController
-   - AuthController
+---
 
-2. **Créer les Services** :
-   - BookingService (logique réservations)
-   - ScheduleService (génération créneaux)
-   - N8nService (webhooks)
-   - CalendarService (Google Calendar)
+## 👥 Comptes par défaut (après seeders)
 
-3. **Créer les Validators** :
-   - CreateBookingValidator
-   - UpdateBookingValidator
-   - LoginValidator
+```
+Admin:
+  Email: admin@golfcoach.com
+  Password: admin123
 
-4. **Créer les Pages Frontend** :
-   - Page réservation Indoor
-   - Dashboard Coach
-   - Gestion plannings
+Coach:
+  Email: coach@golfcoach.com
+  Password: coach123
 
-## 📚 Documentation
+User test:
+  Email: user@example.com
+  Password: user123
+```
 
-- [AdonisJS Docs](https://docs.adonisjs.com)
-- [React Docs](https://react.dev)
-- [Shadcn UI](https://ui.shadcn.com)
-- [Tailwind CSS](https://tailwindcss.com)
+**⚠️ Changez ces mots de passe en production !**
 
-## 🤝 Contribution
+---
 
-Ce projet est en développement actif. Suivez les conventions de code définies dans le cahier des charges.
+## 🐛 Dépannage
 
-## 📄 License
+### Le backend ne démarre pas
+- Vérifier PostgreSQL est démarré
+- Vérifier les credentials dans `.env`
+- Vérifier que la base existe : `psql -l`
 
-ISC
+### Les créneaux ne s'affichent pas
+- Vérifier que les seeders ont été exécutés
+- Générer les créneaux : `node ace db:seed --files database/seeders/weekly_schedule_seeder.ts`
+- Puis régénérer : appeler `/api/admin/schedules/regenerate`
+
+### N8N ne reçoit pas les webhooks
+- Vérifier que le workflow est ACTIF
+- Vérifier l'URL dans `.env`
+- Vérifier les logs backend : `console.log('N8N webhook triggered')`
+
+### Emails non envoyés
+- Vérifier les credentials Gmail dans N8N
+- Re-connecter le compte Gmail OAuth2
+- Vérifier les quotas Gmail (max 500/jour)
+
+---
+
+## 📊 Statistiques du projet
+
+- **Backend** : 8 modèles, 6 contrôleurs, 3 services, 8 migrations
+- **Frontend** : 3 pages, 17 composants, 2 stores
+- **API** : 20+ endpoints
+- **N8N** : 1 workflow complet, 4 templates emails
+- **Documentation** : 3 fichiers README, 1 guide complet
+
+---
+
+## 🎯 Statut des fonctionnalités
+
+### Phase 1 - ✅ Complète
+- [x] Setup complet Backend + Frontend
+- [x] Configuration base de données (8 migrations)
+- [x] Modèles et relations Lucid ORM
+- [x] Authentification et autorisations
+- [x] Health check endpoint
+- [x] Backend Controllers (6 fichiers)
+- [x] Services métier (3 fichiers)
+- [x] Validators VineJS (4 fichiers)
+
+### Phase 2 - ✅ Complète
+- [x] **Réservations Indoor** (TrackMan 4)
+  - [x] Wizard 4 étapes
+  - [x] Sélection date (calendrier 30 jours)
+  - [x] Sélection créneaux (1-3 consécutifs)
+  - [x] Validation créneaux consécutifs
+  - [x] Formulaire client (React Hook Form + Zod)
+  - [x] Récapitulatif et confirmation
+  - [x] Écran de succès
+
+### Phase 3 - ✅ Complète
+- [x] **Réservations Parcours Accompagné**
+  - [x] Choix 9 ou 18 trous
+  - [x] Sélection parcours de golf
+  - [x] Choix joueurs (1-3)
+  - [x] Calcul prix dynamique (prix ÷ joueurs)
+  - [x] Date OU préférence rappel
+  - [x] Wizard 4 étapes
+  - [x] Écran de succès
+
+### Phase 4 - ✅ Complète
+- [x] **Intégration N8N**
+  - [x] Service N8N (webhooks)
+  - [x] Workflow complet exportable
+  - [x] Email confirmation (HTML responsive)
+  - [x] Email rappel 24h
+  - [x] Email annulation
+  - [x] Notification coach
+  - [x] Google Calendar sync
+  - [x] Documentation complète
+
+### Phase 5 - À venir
+- [ ] Dashboard admin
+- [ ] Paiement en ligne (Stripe)
+- [ ] Système de fidélité
+- [ ] App mobile
+- [ ] Statistiques et analytics
+
+---
+
+## 📝 Licence
+
+© 2024 Golf Coach Antony - Tous droits réservés
+
+---
+
+## 🤝 Support
+
+Pour toute question :
+- Email : contact@golfcoachantony.com
+- Téléphone : 06 XX XX XX XX
+
+---
+
+**Projet développé avec ❤️ pour Golf Coach Antony**
+
+Version : 1.0.0
+Dernière mise à jour : 15 novembre 2024
